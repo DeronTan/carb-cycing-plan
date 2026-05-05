@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<title>碳循环减脂 5/4-5/31</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Helvetica Neue','PingFang SC','Noto Sans SC','Noto Sans JP',sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;min-height:100dvh;padding:20px 14px 50px}
+.w{max-width:520px;margin:0 auto}
+.sub{font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:4px}
+h1{font-size:22px;font-weight:700;color:#fff}
+.desc{font-size:11px;color:#666;margin-top:4px}
+.sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:6px;vertical-align:middle}
+.card{background:#141414;border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid #222}
+.row{display:flex;justify-content:space-between;align-items:center}
+.pbar{height:5px;background:#222;border-radius:3px;overflow:hidden;margin-top:6px}
+.pfill{height:100%;border-radius:3px;transition:width .3s}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal-h{font-size:9px;color:#444;padding:3px 0}
+.cal-c{border-radius:5px;padding:6px 0 4px;cursor:pointer;border:1.5px solid #252525;background:#1a1a1a;position:relative;transition:all .15s}
+.cal-c.today::after{content:'';position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;background:#fff}
+.cal-d{font-size:11px;font-weight:600}
+.cal-t{font-size:7px;color:#555;margin-top:1px}
+.leg{display:flex;gap:10px;font-size:9px;color:#555}
+.leg-d{width:6px;height:6px;border-radius:2px;display:inline-block;margin-right:2px}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:1px}
+.macro-g{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid #1e1e1e}
+.macro-c{text-align:center}
+.macro-l{font-size:9px;color:#555;margin-bottom:2px}
+.macro-v{font-size:17px;font-weight:700}
+.macro-u{font-size:8px;color:#444}
+.rbar{margin-bottom:8px}
+.rbar .lbl{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
+.rbar .track{height:4px;background:#222;border-radius:2px;overflow:hidden}
+.rbar .fill{height:100%;border-radius:2px;transition:width .3s}
+.btn{width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;border:2px solid var(--c);background:var(--bg);color:var(--c)}
+.btn-s{padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid #333;background:transparent;color:#888}
+.btn-a{border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+.input{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;font-size:14px;outline:none}
+.input-s{padding:9px;font-size:13px;text-align:center}
+.form-box{background:#1a1a1a;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #282828}
+.food-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1e1e1e}
+.food-item:last-child{border-bottom:none}
+.food-n{font-size:12px;color:#ddd;font-weight:500}
+.food-t{font-size:10px;color:#444;margin-left:4px}
+.food-m{font-size:10px;color:#555;margin-top:2px;display:flex;gap:7px}
+.del{background:transparent;border:none;color:#333;font-size:15px;cursor:pointer;padding:2px 6px}
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);z-index:999}
+@keyframes fo{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes pi{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.tip{border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:11px;line-height:1.4}
+.over{color:#ef4444}
+.setup{max-width:400px;margin:80px auto;text-align:center;padding:0 20px}
+.setup h2{font-size:20px;color:#fff;margin-bottom:8px}
+.setup p{font-size:12px;color:#666;margin-bottom:20px;line-height:1.5}
+.setup input{margin-bottom:12px}
+.setup button{margin-top:8px}
+</style>
+</head>
+<body>
+<div class="w" id="app"><div style="text-align:center;padding:60px 0;color:#555">加载中...</div></div>
+<script>
+// ===== CONFIG =====
+const GH_OWNER="DeronTan";
+const GH_REPO="carb-cycing-plan";
+const GH_FILE="data.json";
+const GH_API=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+const TOKEN_KEY="cc-gh-token";
+
+function getToken(){return localStorage.getItem(TOKEN_KEY)||"";}
+function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
+
+// ===== PLAN CONFIG =====
+const S=new Date(2026,4,4),T=28,CP=["low","low","mid","high"],BASE=2500,DEF_TARGET=700,PROT=175;
+const CT={low:40,mid:95,high:300};
+const MD={
+  low:{label:"低碳日",tag:"LOW",c:"#3b82f6",bg:"rgba(59,130,246,.08)",bd:"rgba(59,130,246,.25)",gw:"rgba(59,130,246,.15)",tr:"休息日 / 轻度有氧",tip:"低碳日安排在休息日或轻度有氧日，避免大重量训练"},
+  mid:{label:"中碳日",tag:"MID",c:"#f59e0b",bg:"rgba(245,158,11,.08)",bd:"rgba(245,158,11,.25)",gw:"rgba(245,158,11,.15)",tr:"中等训练（胸/肩/臂）",tip:"碳水集中在训练前后摄入，提升训练表现和恢复"},
+  high:{label:"高碳日",tag:"HIGH",c:"#10b981",bg:"rgba(16,185,129,.08)",bd:"rgba(16,185,129,.25)",gw:"rgba(16,185,129,.15)",tr:"大肌群训练（腿/背）",tip:"高碳日全力输出，充分补充糖原，为下一轮低碳蓄力"}
+};
+const WD=["月","火","水","木","金","土","日"];
+
+function gd(i){const d=new Date(S);d.setDate(d.getDate()+i);const dw=d.getDay();return{i,num:i+1,d,ds:`${d.getMonth()+1}/${d.getDate()}`,dk:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,wd:WD[dw===0?6:dw-1],type:CP[i%CP.length]};}
+const AD=Array.from({length:T},(_,i)=>gd(i));
+function gw(){const w=[];let c=[];const fd=AD[0].d.getDay(),pad=fd===0?6:fd-1;for(let i=0;i<pad;i++)c.push(null);for(const d of AD){c.push(d);if(d.d.getDay()===0){w.push(c);c=[];}}if(c.length){while(c.length<7)c.push(null);w.push(c);}return w;}
+function isT(d){const n=new Date();return d.getDate()===n.getDate()&&d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}
+function cm(type,burn=0){const tdee=BASE+burn,tgt=tdee-DEF_TARGET,carb=CT[type],pCal=PROT*4,cCal=carb*4,fCal=Math.max(tgt-pCal-cCal,0);return{cal:tgt,p:PROT,f:Math.round(fCal/9),c:carb,tdee};}
+
+// ===== STATE =====
+let sel=0,data={done:{},logs:{},training:{},burns:{}},showAdd=false,showTrain=false,ghSHA=null,syncStatus="loading";
+
+// ===== GITHUB SYNC =====
+async function ghLoad(){
+  const tk=getToken();if(!tk)return null;
+  try{
+    const r=await fetch(GH_API,{headers:{"Authorization":`Bearer ${tk}`,"Accept":"application/vnd.github+json"}});
+    if(r.status===404){syncStatus="synced";return null;}
+    if(r.status===401){syncStatus="auth_error";return null;}
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();ghSHA=j.sha;
+    syncStatus="synced";
+    return JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
+  }catch(e){console.error("ghLoad",e);syncStatus="error";return null;}
+}
+
+async function ghSave(){
+  const tk=getToken();if(!tk){syncStatus="no_token";render();return;}
+  try{
+    syncStatus="syncing";render();
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+    const body={message:"sync "+new Date().toISOString(),content};
+    if(ghSHA)body.sha=ghSHA;
+    const r=await fetch(GH_API,{method:"PUT",headers:{"Authorization":`Bearer ${tk}`,"Accept":"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(!r.ok){
+      if(r.status===409){const fresh=await ghLoad();if(fresh){data=fresh;render();}return;}
+      if(r.status===401){syncStatus="auth_error";render();return;}
+      throw new Error(r.status);
+    }
+    const j=await r.json();ghSHA=j.content.sha;syncStatus="synced";
+  }catch(e){console.error("ghSave",e);syncStatus="error";}
+  render();
+}
+
+let saveTimer=null;
+function sv(){
+  localStorage.setItem("cc-gh-data",JSON.stringify(data));
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>ghSave(),800);
+}
+
+function eaten(dk){return(data.logs[dk]||[]).reduce((a,l)=>({cal:a.cal+(l.cal||0),p:a.p+(l.p||0),f:a.f+(l.f||0),c:a.c+(l.c||0)}),{cal:0,p:0,f:0,c:0});}
+
+function prefill(){
+  const D1="2026-5-4",D2="2026-5-5";
+  if(!data.logs)data.logs={};
+  if(!data.logs[D1]||data.logs[D1].length===0){
+    data.logs[D1]=[
+      {name:"牛肉饭（あたま大盛）",cal:765,p:19.8,f:35.6,c:87.2,time:"12:00"},
+      {name:"ローソン焼き鳥",cal:222,p:24.2,f:10.6,c:7.7,time:"12:30"},
+      {name:"ローソン鸡块x5",cal:255,p:13.4,f:18.7,c:8.5,time:"13:00"},
+      {name:"鸡蛋",cal:71,p:5.8,f:4.8,c:0.1,time:"13:00"},
+      {name:"咸鸭蛋",cal:90,p:5.5,f:7,c:0.5,time:"13:30"},
+      {name:"蛋黄酥",cal:260,p:5,f:15,c:27,time:"14:00"},
+      {name:"牛奶200ml",cal:130,p:6.6,f:7.6,c:9.6,time:"14:30"}
+    ];
+  }
+  if(!data.logs[D2]||data.logs[D2].length===0){
+    data.logs[D2]=[
+      {name:"ローソン鸡肉串x2",cal:226,p:19.8,f:11.4,c:11.6,time:"12:00"},
+      {name:"柚子胡椒鸡腿肉（冷冻）",cal:250,p:20,f:15,c:5,time:"12:00"},
+      {name:"猪肉肠（F30g）",cal:380,p:15,f:30,c:5,time:"12:00"}
+    ];
+  }
+  if(!data.done)data.done={};
+  if(!data.training)data.training={};
+  if(!data.burns)data.burns={};
+}
+
+// ===== SETUP SCREEN =====
+function showSetup(err){
+  document.getElementById('app').innerHTML=`
+    <div class="setup">
+      <div style="font-size:48px;margin-bottom:16px">🔥</div>
+      <h2>碳循环减脂计划</h2>
+      <p>首次使用需要输入GitHub Token来同步数据。<br>Token只保存在你的浏览器里，不会上传到任何地方。</p>
+      ${err?`<div style="color:#ef4444;font-size:12px;margin-bottom:12px">${err}</div>`:''}
+      <input class="input" id="setup-token" placeholder="粘贴你的 GitHub Personal Access Token" style="margin-bottom:14px" value="${getToken()}">
+      <button class="btn-a" style="background:#3b82f6;color:#fff;padding:14px;font-size:15px" onclick="saveSetup()">开始使用</button>
+      <div style="margin-top:20px;font-size:10px;color:#444;line-height:1.6">
+        每台新设备只需输入一次<br>Token过期后重新输入即可
+      </div>
+    </div>`;
+}
+
+async function saveSetup(){
+  const tk=document.getElementById('setup-token').value.trim();
+  if(!tk){alert("请输入Token");return;}
+  setToken(tk);
+  document.getElementById('app').innerHTML='<div style="text-align:center;padding:60px 0;color:#555">验证中...</div>';
+  const r=await ghLoad();
+  if(syncStatus==="auth_error"){showSetup("Token无效，请检查后重试");return;}
+  if(r){data=r;if(!data.burns)data.burns={};if(!data.training)data.training={};}
+  prefill();sv();render();
+}
+
+// ===== INIT =====
+async function init(){
+  for(const d of AD){if(isT(d.d)){sel=d.i;break;}}
+  const tk=getToken();
+  if(!tk){showSetup();return;}
+  // Try GitHub
+  const ghData=await ghLoad();
+  if(syncStatus==="auth_error"){showSetup("Token已过期或无效，请重新输入");return;}
+  if(ghData){data=ghData;if(!data.burns)data.burns={};if(!data.training)data.training={};}
+  else{try{const s=localStorage.getItem("cc-gh-data");if(s){data=JSON.parse(s);if(!data.burns)data.burns={};if(!data.training)data.training={};}}catch(e){}}
+  prefill();sv();render();
+}
+
+// ===== RENDER =====
+function render(){
+  const day=AD[sel],cur=MD[day.type],burn=data.burns[day.dk]||0,m=cm(day.type,burn);
+  const dl=data.logs[day.dk]||[],dt=data.training[day.dk]||[];
+  const e=eaten(day.dk);
+  const rem={cal:m.cal-e.cal,p:m.p-e.p,f:m.f-e.f,c:m.c-e.c};
+  const isDone=data.done[day.dk],cnt=Object.keys(data.done).length,pct=Math.round(cnt/T*100);
+  const totalBurn=BASE+burn,currentDeficit=totalBurn-e.cal;
+  const deficitColor=currentDeficit>=DEF_TARGET?"#10b981":currentDeficit>=400?"#f59e0b":"#ef4444";
+  const deficitStatus=currentDeficit>=DEF_TARGET?"达标":currentDeficit>=400?"注意":"超标";
+  const syncDot=syncStatus==="synced"?"#10b981":syncStatus==="syncing"?"#f59e0b":"#ef4444";
+  const syncText=syncStatus==="synced"?"已同步":syncStatus==="syncing"?"同步中...":"同步失败";
+
+  let cal=WD.map(d=>`<div class="cal-h">${d}</div>`).join('');
+  gw().flat().forEach((d,i)=>{
+    if(!d){cal+=`<div></div>`;return;}
+    const dd=MD[d.type],isSel=sel===d.i,dn=data.done[d.dk],td=isT(d.d),hl=(data.logs[d.dk]||[]).length>0;
+    const bg=isSel?dd.bg:dn?"rgba(255,255,255,.03)":"#1a1a1a";
+    const bd=isSel?dd.c:td?"#555":"#252525";
+    cal+=`<div class="cal-c${td?' today':''}" style="background:${bg};border-color:${bd}" onclick="pick(${d.i})"><div class="cal-d" style="color:${dn?'#555':dd.c}">${d.d.getDate()}</div><div class="cal-t" style="color:${dn?'#444':'#555'}">${dn?"✓":hl?"●":dd.tag}</div></div>`;
+  });
+
+  function rbar(label,cur,tgt,color,unit){
+    const p=tgt>0?Math.min(Math.round(cur/tgt*100),100):0;const ov=cur>tgt;
+    return`<div class="rbar"><div class="lbl"><span style="color:#888">${label}</span><span style="color:${ov?'#ef4444':'#aaa'}">${Math.round(cur)}/${tgt}${unit}${ov?` <span class="over">超${Math.round(cur-tgt)}</span>`:''}</span></div><div class="track"><div class="fill" style="width:${p}%;background:${ov?'#ef4444':color}"></div></div></div>`;
+  }
+
+  document.getElementById('app').innerHTML=`
+    <div class="row">
+      <div><div class="sub">4-Week Aggressive Cut</div><h1>碳循环减脂计划</h1></div>
+      <div style="text-align:right">
+        <div style="font-size:9px;color:#555">${syncText}<span class="sync-dot" style="background:${syncDot}"></span></div>
+        <div style="font-size:9px;color:#444;margin-top:2px"><span style="cursor:pointer;text-decoration:underline" onclick="forceSync()">刷新</span> · <span style="cursor:pointer;text-decoration:underline" onclick="showSetup()">设置</span></div>
+      </div>
+    </div>
+    <div class="desc">95kg · 基础${BASE} · 目标缺口${DEF_TARGET}kcal · 5/4—5/31</div>
+
+    <div class="card" style="margin-top:14px;padding:12px 14px">
+      <div class="row"><span style="font-size:11px;color:#888">进度</span><span style="font-size:11px;color:#fff;font-weight:600">${cnt}/${T}</span></div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%;background:linear-gradient(90deg,#3b82f6,#10b981)"></div></div>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="row" style="margin-bottom:8px"><span style="font-size:12px;font-weight:600;color:#aaa">5月 2026</span>
+        <div class="leg">${Object.entries(MD).map(([k,v])=>`<div><span class="leg-d" style="background:${v.c}"></span>${v.tag}</div>`).join('')}</div>
+      </div>
+      <div class="cal-g">${cal}</div>
+    </div>
+
+    <div class="card" style="border-color:${cur.bd};box-shadow:0 0 25px ${cur.gw};padding:16px">
+      <div class="row" style="margin-bottom:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">
+            <span style="font-size:18px;font-weight:800;color:#fff">DAY ${day.num}</span>
+            <span class="tag" style="color:${cur.c};background:${cur.bg};border:1px solid ${cur.bd}">${cur.tag}</span>
+            ${isDone?'<span class="tag" style="color:#10b981;background:rgba(16,185,129,.1)">DONE ✓</span>':''}
+          </div>
+          <div style="font-size:12px;color:#888">${day.d.getMonth()+1}月${day.d.getDate()}日（${day.wd}）· ${cur.tr}</div>
+        </div>
+      </div>
+
+      <div style="background:#1a1a1a;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="text-align:center;margin-bottom:10px">
+          <div style="font-size:9px;color:#666;margin-bottom:2px">当前实际缺口</div>
+          <div style="font-size:36px;font-weight:800;color:${deficitColor};line-height:1">${Math.round(currentDeficit)}</div>
+          <div style="font-size:10px;color:${deficitColor};margin-top:2px">kcal · ${deficitStatus}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;text-align:center;font-size:9px">
+          <div><div style="color:#555">基础消耗</div><div style="color:#888;font-size:14px;font-weight:700">${BASE}</div></div>
+          <div><div style="color:#8b5cf6">训练消耗</div><div style="color:#8b5cf6;font-size:14px;font-weight:700;cursor:pointer;text-decoration:underline dotted" onclick="editBurn()">+${burn}</div></div>
+          <div><div style="color:#888">总消耗</div><div style="color:#fff;font-size:14px;font-weight:700">${totalBurn}</div></div>
+          <div><div style="color:#888">已摄入</div><div style="color:${e.cal>m.cal?'#ef4444':'#fff'};font-size:14px;font-weight:700">${Math.round(e.cal)}</div></div>
+        </div>
+      </div>
+
+      ${rbar("热量",e.cal,m.cal,cur.c," kcal")}
+      ${rbar("蛋白质",e.p,m.p,"#ef4444","g")}
+      ${rbar("脂肪",e.f,m.f,"#f59e0b","g")}
+      ${rbar("碳水",e.c,m.c,"#3b82f6","g")}
+
+      <div class="macro-g">
+        ${[{l:"剩余热量",v:Math.round(rem.cal),u:"kcal",c:cur.c},{l:"剩余蛋白",v:Math.round(rem.p),u:"g",c:"#ef4444"},{l:"剩余脂肪",v:Math.round(rem.f),u:"g",c:"#f59e0b"},{l:"剩余碳水",v:Math.round(rem.c),u:"g",c:"#3b82f6"}].map(r=>`<div class="macro-c"><div class="macro-l">${r.l}</div><div class="macro-v" style="color:${r.v<0?'#ef4444':r.c}">${r.v}</div><div class="macro-u">${r.u}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <span style="font-size:13px;font-weight:600;color:#ccc">饮食记录</span>
+        <button class="btn-s" style="${showAdd?'background:#333;color:#888':'background:'+cur.bg+';border-color:'+cur.bd+';color:'+cur.c}" onclick="toggleAdd()">${showAdd?'取消':'+ 添加'}</button>
+      </div>
+      ${showAdd?`<div class="form-box">
+        <input class="input" placeholder="食物名称" id="fn">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin:10px 0">
+          <div><div style="font-size:9px;color:#555;text-align:center;margin-bottom:3px">热量kcal</div><input class="input input-s" id="fc" type="number" inputmode="decimal" placeholder="0"></div>
+          <div><div style="font-size:9px;color:#ef4444;text-align:center;margin-bottom:3px">蛋白质g</div><input class="input input-s" id="fp" type="number" inputmode="decimal" placeholder="0"></div>
+          <div><div style="font-size:9px;color:#f59e0b;text-align:center;margin-bottom:3px">脂肪g</div><input class="input input-s" id="ff" type="number" inputmode="decimal" placeholder="0"></div>
+          <div><div style="font-size:9px;color:#3b82f6;text-align:center;margin-bottom:3px">碳水g</div><input class="input input-s" id="fcc" type="number" inputmode="decimal" placeholder="0"></div>
+        </div>
+        <button class="btn-a" style="background:${cur.c};color:#000" onclick="addFood()">确认添加</button>
+      </div>`:''}
+      ${dl.length===0&&!showAdd?'<div style="text-align:center;padding:16px 0;color:#333;font-size:11px">今天还没有记录</div>':''}
+      ${dl.map((l,i)=>`<div class="food-item"><div style="flex:1"><div><span class="food-n">${l.name}</span><span class="food-t">${l.time||''}</span></div><div class="food-m"><span>${l.cal}kcal</span><span style="color:#ef4444">P${l.p}</span><span style="color:#f59e0b">F${l.f}</span><span style="color:#3b82f6">C${l.c}</span></div></div><button class="del" onclick="rmFood(${i})">×</button></div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px">
+        <span style="font-size:13px;font-weight:600;color:#ccc">训练记录</span>
+        <button class="btn-s" style="${showTrain?'background:#333;color:#888':'background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.25);color:#8b5cf6'}" onclick="toggleTrain()">${showTrain?'取消':'+ 添加'}</button>
+      </div>
+      ${showTrain?`<div class="form-box">
+        <input class="input" placeholder="训练类型（如：胸+三头、腿、有氧…）" id="tt" style="margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <input class="input" placeholder="时长（如：60min）" id="td">
+          <input class="input" placeholder="消耗 kcal" id="tb" type="number" inputmode="numeric" style="border-color:#8b5cf6">
+        </div>
+        <input class="input" placeholder="备注（选填）" id="tn" style="margin-bottom:10px">
+        <button class="btn-a" style="background:#8b5cf6;color:#fff" onclick="addTrain()">确认添加</button>
+      </div>`:''}
+      ${dt.length===0&&!showTrain?'<div style="text-align:center;padding:16px 0;color:#333;font-size:11px">今天还没有训练记录</div>':''}
+      ${dt.map((t,i)=>`<div class="food-item"><div><div style="font-size:12px;color:#c4b5fd;font-weight:500">${t.type}${t.duration?' <span style="font-size:10px;color:#666">· '+t.duration+'</span>':''}${t.burn?' <span style="font-size:10px;color:#8b5cf6">🔥'+t.burn+'kcal</span>':''}</div>${t.notes?'<div style="font-size:10px;color:#555;margin-top:2px">'+t.notes+'</div>':''}</div><button class="del" onclick="rmTrain(${i})">×</button></div>`).join('')}
+    </div>
+
+    <div class="tip" style="background:${cur.bg};border:1px solid ${cur.bd};color:${cur.c}">💡 ${cur.tip}</div>
+
+    ${!isDone?`<button class="btn" style="--c:${cur.c};--bg:${cur.bg}" onclick="markDone()">✓ DAY ${day.num} 完成</button>`:`<div style="text-align:center"><div style="font-size:12px;color:#555;margin-bottom:6px">✅ 已完成</div><button class="btn-s" onclick="undoDone()">撤销</button></div>`}
+    <div style="text-align:center;font-size:8px;color:#222;margin-top:20px">95kg · deficit ${DEF_TARGET} · carb cycling · May 2026</div>
+  `;
+}
+
+// ===== ACTIONS =====
+function pick(i){sel=i;showAdd=false;showTrain=false;render();}
+function toggleAdd(){showAdd=!showAdd;showTrain=false;render();if(showAdd)setTimeout(()=>{const el=document.getElementById('fn');if(el)el.focus();},50);}
+function toggleTrain(){showTrain=!showTrain;showAdd=false;render();}
+
+function addFood(){
+  const n=document.getElementById('fn').value.trim();if(!n)return;
+  const day=AD[sel];
+  const entry={name:n,cal:parseFloat(document.getElementById('fc').value)||0,p:parseFloat(document.getElementById('fp').value)||0,f:parseFloat(document.getElementById('ff').value)||0,c:parseFloat(document.getElementById('fcc').value)||0,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})};
+  if(!data.logs[day.dk])data.logs[day.dk]=[];
+  data.logs[day.dk].push(entry);sv();showAdd=false;render();
+}
+function rmFood(i){const day=AD[sel];data.logs[day.dk].splice(i,1);sv();render();}
+
+function addTrain(){
+  const t=document.getElementById('tt').value.trim();if(!t)return;
+  const day=AD[sel];
+  const burn=parseInt(document.getElementById('tb').value)||0;
+  const entry={type:t,duration:document.getElementById('td').value.trim(),notes:document.getElementById('tn').value.trim(),burn:burn||undefined};
+  if(!data.training[day.dk])data.training[day.dk]=[];
+  data.training[day.dk].push(entry);
+  data.burns[day.dk]=(data.burns[day.dk]||0)+burn;
+  sv();showTrain=false;render();
+}
+function rmTrain(i){const day=AD[sel];data.training[day.dk].splice(i,1);sv();render();}
+
+function editBurn(){
+  const day=AD[sel],cur=data.burns[day.dk]||0;
+  const v=prompt("输入今日训练总消耗 (kcal)",cur);
+  if(v===null)return;
+  data.burns[day.dk]=parseInt(v)||0;sv();render();
+}
+
+function markDone(){
+  const day=AD[sel];data.done[day.dk]=true;sv();
+  const cur=MD[day.type],cnt=Object.keys(data.done).length;
+  const ov=document.createElement('div');ov.className='overlay';ov.style.animation='fo 1.8s ease-in-out';
+  ov.innerHTML=`<div style="text-align:center;animation:pi .5s cubic-bezier(.175,.885,.32,1.275)"><div style="font-size:60px;margin-bottom:10px">✅</div><div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">DAY ${day.num} DONE</div><div style="font-size:13px;color:${cur.c}">${cur.label} · ${day.ds}</div><div style="font-size:12px;color:#555;margin-top:6px">${cnt}/${T}</div></div>`;
+  document.body.appendChild(ov);setTimeout(()=>{ov.remove();render();},1800);
+}
+function undoDone(){const day=AD[sel];delete data.done[day.dk];sv();render();}
+
+async function forceSync(){
+  syncStatus="syncing";render();
+  const ghData=await ghLoad();
+  if(ghData){data=ghData;if(!data.burns)data.burns={};if(!data.training)data.training={};localStorage.setItem("cc-gh-data",JSON.stringify(data));}
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
